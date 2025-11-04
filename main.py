@@ -5,7 +5,8 @@ Code assisted by Chat-Based Generative AI
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
+import seaborn as sns
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 
 # --- Load datasets ---
 train_df = pd.read_csv("data/training_data.csv")
@@ -120,6 +121,11 @@ y_true = train_df["Risk"].astype(str).str.strip().str.lower()
 y_pred = train_df["Predicted_Risk"].astype(str).str.strip().str.lower()
 
 accuracy = accuracy_score(y_true, y_pred)
+precision = precision_score(y_true, y_pred, pos_label='bad')
+recall = recall_score(y_true, y_pred, pos_label='bad')
+f1 = f1_score(y_true, y_pred, pos_label='bad')
+metrics = {'Precision': precision, 'Recall': recall, 'F1-Score': f1}
+
 print(f"\nRule-Based System Accuracy: {accuracy:.4f}\n")
 
 print("Classification Report:\n", classification_report(y_true, y_pred))
@@ -129,9 +135,16 @@ print("Confusion Matrix:\n", cm, "\n")
 
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["bad", "good"])
 disp.plot(cmap="Blues", values_format='d')
-plt.title("Confusion Matrix - Rule-Based Credit Risk Classifier with Pattern Consistency")
+plt.title("Confusion Matrix - Rule-Based Credit Risk Classifier")
 plt.xlabel("Predicted Label")
 plt.ylabel("True Label")
+plt.show()
+
+plt.figure(figsize=(6,4))
+sns.barplot(x=list(metrics.keys()), y=list(metrics.values()), palette='Blues')
+plt.ylim(0, 1)
+plt.title('Performance Metrics for Bad Risk Classification')
+plt.ylabel('Score')
 plt.show()
 
 # --- Combine and export ---
